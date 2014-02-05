@@ -5,27 +5,27 @@ A Ruby client for the CitySDK API.
 
 ## Example usage
 
-    ```ruby
-    require 'citysdk'
-    require 'pp'
+```ruby
+require 'citysdk'
+require 'pp'
 
-    # Create an API client for your CitySDK API.
-    api = CitySDK::API.new('https://api.example.com')
+# Create an API client for your CitySDK API.
+api = CitySDK::API.new('https://api.example.com')
 
-    # Get the first 10 layers (credentials are not required).
-    pp api.get_layers()
+# Get the first 10 layers (credentials are not required).
+pp api.get_layers()
 
-    # Enter your credentials so that can write to the API.
-    api.set_credentials('john.smith@example.com', 'password')
+# Enter your credentials so that can write to the API.
+api.set_credentials('john.smith@example.com', 'password')
 
-    # Create a layer within a domain that you're a member of.
-    api.create_layer(
-        name:         'my_domain.my_layer',
-        description:  'Example layer',
-        organization: 'Example Co.',
-        category:     'civil.example'
-    )
-    ```
+# Create a layer within a domain that you're a member of.
+api.create_layer(
+    name:         'my_domain.my_layer',
+    description:  'Example layer',
+    organization: 'Example Co.',
+    category:     'civil.example'
+)
+```
 
 
 ## Contributing
