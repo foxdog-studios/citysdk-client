@@ -1,47 +1,32 @@
 # Citysdk
 
-The CitySDK gem encapulates the CItySDK API, and offers high-level file import functionalities.
-The CitySDK API is part of an (open)data distribution platform developed in the EU CitySDK program by [Waag Society](http://waag.org).
-Find the platform itself on [github](https://github.com/waagsociety/citysdk), platform documentation is [here](http://dev.citysdk.waag.org).
+A Ruby client for the CitySDK API.
 
 
-## Usage
+## Example usage
 
+    ```ruby
     require 'citysdk'
-    
-    # check the dev site for api usage.
+    require 'pp'
 
-    api = CitySDK::API.new('api.citysdk.waag.org')
+    # Create an API client for your CitySDK API.
+    api = CitySDK::API.new('https://api.example.com')
 
-    # simple GET
-    # GET requests do not need authentication
-    first10layers = api.get('/layers')
-    puts "Number of layers: #{first10layers[:record_count]}"
-    puts "First layer: #{JSON.pretty_generate(first10layers[:results][0])}"
-    
+    # Get the first 10 layers (credentials are not required).
+    pp api.get_layers()
 
-    # authenticate for write actions.
-    exit if not api.authenticate(<email>,<passw>)
+    # Enter your credentials so that can write to the API.
+    api.set_credentials('john.smith@example.com', 'password')
 
-    # make a layer
-    # when you own the 'my' top level layer domain: 
-    @api.put('/layers',{:data => {
-      :name => 'my.layer',
-      :description => 'for testing',
-      :organization => 'me',
-      :category => 'civic.test'
-    }})
+    # Create a layer within a domain that you're a member of.
+    api.create_layer(
+        name:         'my_domain.my_layer',
+        description:  'Example layer',
+        organization: 'Example Co.',
+        category:     'civil.example'
+    )
+    ```
 
-    # add data to this layer
-    # attach to the node representing the city of Rotterdam
-    api.put('/admr.nl.rotterdam/my.layer', {:data => {:key1=>'value1', :key2=>10}})
-
-
-    ...
-    
-    # don't forget to release! this will also send 'unfilled' batches to the backend.
-    api.release
-    
 
 ## Contributing
 
@@ -50,3 +35,4 @@ Find the platform itself on [github](https://github.com/waagsociety/citysdk), pl
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+

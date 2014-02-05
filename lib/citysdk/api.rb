@@ -1,189 +1,147 @@
 require 'json'
 require 'faraday'
 
+
 module CitySDK
 
-  class HostException < ::Exception
-  end
+  APIError = Class.new(StandardError)
 
   class API
-    attr_reader :error
-    attr_accessor :batch_size
-
-    @@match_tpl = {
-      :match => {
-        :params => {}
-      },
-      :nodes => []
-    }
-    @@create_tpl =  {
-      :create => {
-        :params => {
-          :create_type => "create"
-        }
-      },
-      :nodes => []
-    }
-
-    def initialize(host, port = nil)
-      @error = '';
-      @layer = '';
-      @batch_size = 10;
-      @updated = @created = 0;
-      set_host(host, port)
+    def initialize(url)
+      @conn = Faraday.new(
+        url: url,
+        headers: { content_type: 'application/json' }
+      )
     end
 
-    def authenticate(email, password)
-      @email = email
-      @passw = password
+    def set_credentials(email, password)
       @conn.basic_auth(email, password)
     end
 
-    def set_host(host, port = nil)
-      @host = host
-      @port = port
 
-      if port.nil?
-        if host =~ /^(.*):(\d+)$/
-          @port = $2
-          @host = $1
-        else
-          @port = 80
-        end
-      end
+    # ==========================================================================
+    # = Layers                                                                 =
+    # ==========================================================================
 
-      @conn = Faraday.new :url => "http://#{@host}:#{@port}"
-      @conn.headers = {
-        :user_agent => 'CitySDK_API GEM ' + CitySDK::VERSION,
-        :content_type => 'application/json'
+    def layer?(name)
+      response = get("/layers/#{ name }/")
+      case response.status
+      when 200 then true
+      when 404 then false
+      else api_error(response)
+      end # case
+    end # def
+
+    def create_layer(attributes)
+      data = { data: attributes }.to_json
+      response = put('/layers/', data)
+      api_error(response) if response.status != 200
+      return
+    end # def
+
+    def get_layers()
+      response = get('/layers/')
+      api_error(response) if response.status != 200
+      parse_body(response)
+    end # def
+
+    def set_layer_status(name, status)
+      put("/layers/#{ name }/status", data: status)
+    end
+
+
+    # ==========================================================================
+    # = Nodes                                                                  =
+    # ==========================================================================
+
+    CREATE_TYPE_CREATE = 'create'
+    CREATE_TYPE_ROUTES = 'routes'
+    CREATE_TYPE_UPDATE = 'update'
+
+    NODE_TYPE_NODE   = 'node'
+    NODE_TYPE_PTSTOP = 'ptstop'
+    NODE_TYPE_PTLINE = 'ptline'
+
+    def create_node(layer, node, *args)
+      create_nodes(layer, [nodes], *args)
+    end
+
+    ##
+    # Possible parameters:
+    #
+    # * create_type (required, client default)
+    # * node_type   (required, client default)
+    # * srid        (optional, server default)
+    def create_nodes(layer, nodes, params = {})
+      default_params = {
+        create_type: CREATE_TYPE_CREATE,
+        node_type:   NODE_TYPE_PTSTOP
       }
-      begin
-        get('/')
-      rescue Exception => e
-        raise CitySDK::Exception.new("Trouble connecting to api @ #{host}")
-      end
-      @create = @@create_tpl
-      @match = @@match_tpl
+      params = default_params.merge(params)
+      data = { create: { params: params }, nodes: nodes }.to_json
+      response = put("/nodes/#{ layer }", data)
+      if response.status != 200
+        fail APIError, response.body
+      end # if
+    end # def
+
+
+    # ==========================================================================
+    # = Matching                                                               =
+    # ==========================================================================
+
+    def match_node(node, *args)
+      match_nodes([node], *args)
     end
 
-    def set_matchTemplate(mtpl)
-      mtpl[:nodes] = []
-      @match = @@match_tpl = mtpl
+    def match_nodes(nodes, params = {})
+      data = { create: { params: params }, nodes: nodes }.to_json
+      post('/util/match', data)
     end
 
-    def set_createTemplate(ctpl)
-      ctpl[:nodes] = []
-      @create = @@create_tpl = ctpl
+    def match_and_create_node(layer, node)
+      match_and_create_nodes(layer, [nodes])
     end
 
-    def set_layer(l)
-      @layer = l
+    def match_and_create_nodes(layer, nodes)
+      json = parse_body(match_nodes(nodes))
+      create_nodes(json.fetch('nodes'))
     end
 
-    def set_layer_status(status)
-      put("/layer/#{@layer}/status",{:data => status})
+    private
+
+    def get(path)
+      @conn.get(path)
     end
 
-    def match_node(n)
-      @match[:nodes] << n
-      return match_flush if @match[:nodes].length >= @batch_size
-      return nil
+    def post(path, data)
+      @conn.post(path, data)
     end
 
-    def match_create_node(n)
-      @match[:nodes] << n
-      return match_create_flush if @match[:nodes].length >= @batch_size
-    end
-
-    def create_node(n)
-      @create[:nodes] << n
-      create_flush if @create[:nodes].length >= @batch_size
+    def put(path, data)
+      @conn.put(path, data)
     end
 
     def delete(path)
-      resp = @conn.delete(path)
-      if resp.status == 200
-        return CitySDK::parseJson(resp.body)
-      end
-      @error = CitySDK::parseJson(resp.body)[:message]
-      raise HostException.new(@error)
+      @conn.delete(path)
     end
 
-    def post(path,data)
-      resp = @conn.post(path,data.to_json)
-      if resp.status != 200
-        @error = CitySDK::parseJson(resp.body)[:message]
-        raise HostException.new(@error)
-      end # if
-      CitySDK::parseJson(resp.body)
+    def parse_body(response)
+      JSON.parse(response.body)
     end
 
-    def put(path,data)
-      resp = @conn.put(path,data.to_json)
-      return CitySDK::parseJson(resp.body) if resp.status == 200
-      @error = CitySDK::parseJson(resp.body)[:message]
-      raise HostException.new(@error)
-    end
+    def api_error(response)
+      message =
+        begin
+          parse_body(response)
+        rescue
+          response.body
+        else
+          json.key?('error') ? json['error'] : response.body
+        end # rescue
+      fail APIError, message
+    end # def
 
-    def get(path)
-      resp = @conn.get(path)
-      return CitySDK::parseJson(resp.body) if resp.status == 200
-      @error = CitySDK::parseJson(resp.body)[:message]
-      raise HostException.new(@error)
-    end
-
-    def match_create_flush
-
-      if @match[:nodes].length > 0
-        resp = post('util/match',@match)
-        if resp[:nodes].length > 0
-          @create[:nodes] = resp[:nodes]
-          res = put("/nodes/#{@layer}",@create)
-          tally(res)
-          clear_create_nodes
-        end
-        clear_match_nodes
-        res
-      end
-      nil
-    end
-
-    def match_flush
-      if @match[:nodes].length > 0
-        resp = post('util/match',@match)
-        clear_match_nodes
-        return resp
-      end
-    end
-
-
-    def create_flush
-      if @create[:nodes].length > 0
-        tally put("/nodes/#{@layer}",@create)
-        clear_create_nodes
-      end
-    end
-
-    def tally(res)
-      if res[:status] == "success"
-        # TODO: also tally debug data!
-        @updated += res[:create][:results][:totals][:updated]
-        @created += res[:create][:results][:totals][:created]
-      end
-    end
-
-    def clear_nodes
-      clear_create_nodes
-      clear_match_nodes
-    end
-
-    def clear_match_nodes
-      @match[:nodes] = []
-    end
-
-    def clear_create_nodes
-      @create[:nodes] = []
-    end
-  end
-end
+  end # class
+end # module
 
