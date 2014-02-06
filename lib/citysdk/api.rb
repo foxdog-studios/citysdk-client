@@ -8,7 +8,7 @@ module CitySDK
 
   APIError = Class.new(StandardError)
 
-  LAYER_PATH = 'layer'
+  LAYER_PATH = 'layers'
   NODE_PATH = 'nodes'
 
   class API
