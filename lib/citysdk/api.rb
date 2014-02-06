@@ -1,10 +1,15 @@
 require 'json'
+
+require 'addressable/uri'
 require 'faraday'
 
 
 module CitySDK
 
   APIError = Class.new(StandardError)
+
+  LAYER_PATH = 'layer'
+  NODE_PATH = 'nodes'
 
   class API
     def initialize(url)
@@ -24,7 +29,7 @@ module CitySDK
     # ==========================================================================
 
     def layer?(name)
-      response = get("/layers/#{ name }/")
+      response = get("/#{CitySDK::LAYER_PATH}/#{ name }/")
       case response.status
       when 200 then true
       when 404 then false
@@ -34,19 +39,25 @@ module CitySDK
 
     def create_layer(attributes)
       data = { data: attributes }.to_json
-      response = put('/layers/', data)
+      response = put("/#{CitySDK::LAYER_PATH}/", data)
       api_error(response) if response.status != 200
       return
     end # def
 
     def get_layers()
-      response = get('/layers/')
+      response = get("/#{CitySDK::LAYER_PATH}/")
+      api_error(response) if response.status != 200
+      parse_body(response)
+    end # def
+
+    def get_layer(name)
+      response = get("/#{CitySDK::LAYER_PATH}/#{name}/")
       api_error(response) if response.status != 200
       parse_body(response)
     end # def
 
     def set_layer_status(name, status)
-      put("/layers/#{ name }/status", data: status)
+      put("/#{CitySDK::LAYER_PATH}/#{ name }/status", data: status)
     end
 
 
@@ -83,6 +94,14 @@ module CitySDK
       if response.status != 200
         fail APIError, response.body
       end # if
+    end # def
+
+    def get_nodes(query_params)
+      uri = Addressable::URI.new()
+      uri.query_values = query_params
+      response = get("/#{CitySDK::NODE_PATH}/?#{uri.query}")
+      api_error(response) if response.status != 200
+      parse_body(response)
     end # def
 
 
@@ -133,7 +152,7 @@ module CitySDK
     def api_error(response)
       message =
         begin
-          parse_body(response)
+          json = parse_body(response)
         rescue
           response.body
         else

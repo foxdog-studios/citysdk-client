@@ -20,10 +20,11 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
+  gem.add_dependency('addressable', '~> 2.3.5')
   gem.add_dependency('dbf')
-  gem.add_dependency('georuby', '>= 2.0.0')
-  gem.add_dependency('faraday', '>= 0.8.5')
-  gem.add_dependency('charlock_holmes', '>= 0.6.9.4')
+  gem.add_dependency('georuby', '~> 2.0.0')
+  gem.add_dependency('faraday', '~> 0.8.5')
+  gem.add_dependency('charlock_holmes', '~> 0.6.9.4')
 
   gem.add_development_dependency "rspec"
 end
