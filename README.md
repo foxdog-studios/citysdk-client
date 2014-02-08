@@ -25,6 +25,19 @@ api.create_layer(
     organization: 'Example Co.',
     category:     'civil.example'
 )
+
+# Go through paginated results
+railway_station_node_iterator = CitySDK::NodesPaginator.new(api,
+    'layer' => 'osm',
+    'osm::railway' => 'station',
+)
+stations = []
+while railway_station_node_iterator.has_next()
+    api_results = railway_station_node_iterator.next()
+    stations.concat api_results.fetch('results')
+end # while
+pp stations
+
 ```
 
 
