@@ -143,7 +143,6 @@ module CitySDK
     end
 
     def api_error(response)
-<<<<<<< HEAD:lib/citysdk/client/api.rb
       begin
         json = parse_body(response)
       rescue
@@ -151,16 +150,6 @@ module CitySDK
       else
         message = json.key?('error') ? json['error'] : response.body
       end # rescue
-=======
-      message =
-        begin
-          json = parse_body(response)
-        rescue
-          response.body
-        else
-          json.key?('error') ? json['error'] : response.body
-        end # rescue
->>>>>>> 93e4396856fe0de261352a42a786ad671ce770d8:lib/citysdk/api.rb
       fail APIError, message
     end # def
   end # class
