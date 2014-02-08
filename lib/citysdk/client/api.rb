@@ -1,9 +1,5 @@
-require 'json'
-require 'faraday'
-
 
 module CitySDK
-
   APIError = Class.new(StandardError)
 
   class API
@@ -131,17 +127,15 @@ module CitySDK
     end
 
     def api_error(response)
-      message =
-        begin
-          parse_body(response)
-        rescue
-          response.body
-        else
-          json.key?('error') ? json['error'] : response.body
-        end # rescue
+      begin
+        json = parse_body(response)
+      rescue
+        message = response.body
+      else
+        message = json.key?('error') ? json['error'] : response.body
+      end # rescue
       fail APIError, message
     end # def
-
   end # class
 end # module
 

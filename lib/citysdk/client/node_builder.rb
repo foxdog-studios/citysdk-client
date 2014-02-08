@@ -77,6 +77,12 @@ module CitySDK
       return
     end
 
+    def delete_data_field!(field)
+      @nodes.each do |node|
+        node.fetch(:data).delete(field)
+      end
+      return
+    end
 
     # ==========================================================================
     # = Reading                                                                =
@@ -156,10 +162,12 @@ module CitySDK
       @nodes.each do |node|
         node[node_attr] = node.fetch(:data).fetch(data_field)
       end
+      return
     end # def
 
     def set_geometry_on_node!(node, type, geometry)
       node[:geometry] = { type: type }.merge(geometry)
+      return
     end # def
 
   end # class
