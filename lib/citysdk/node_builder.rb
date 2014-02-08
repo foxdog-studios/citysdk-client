@@ -102,10 +102,11 @@ module CitySDK
     private
 
     def load_data_set_from_csv(path)
+      rows = []
       data_set = CSV.foreach(path, headers: true, skip_blanks: true) do |row|
-        row.to_hash
+        rows.push row.to_hash
       end
-      make_nodes(data_set)
+      make_nodes(rows)
     end
 
     def load_data_set_from_json(path)
