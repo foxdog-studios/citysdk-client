@@ -5,11 +5,8 @@ module CitySDK
   NODE_PATH = 'nodes'
 
   class API
-    def initialize(url)
-      @conn = Faraday.new(
-        url: url,
-        headers: { content_type: 'application/json' }
-      )
+    def initialize(conn)
+      @conn = conn
     end
 
     def set_credentials(email, password)
