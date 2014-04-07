@@ -1,7 +1,8 @@
 module CitySDK
   APIError = Class.new(StandardError)
 
-  LAYER_PATH = 'layers'
+  LAYER_PATH = 'layer'
+  LAYERS_PATH = 'layers'
   NODE_PATH = 'nodes'
 
   class API
@@ -29,13 +30,13 @@ module CitySDK
 
     def create_layer(attributes)
       data = { data: attributes }.to_json
-      response = put("/#{CitySDK::LAYER_PATH}/", data)
+      response = put("/#{CitySDK::LAYERS_PATH}/", data)
       api_error(response) if response.status != 200
       return
     end # def
 
     def get_layers()
-      response = get("/#{CitySDK::LAYER_PATH}/")
+      response = get("/#{CitySDK::LAYERS_PATH}/")
       api_error(response) if response.status != 200
       parse_body(response)
     end # def
@@ -124,11 +125,15 @@ module CitySDK
     end
 
     def post(path, data)
-      @conn.post(path, data)
+      @conn.post(path, data) { |req| set_content_type(req) }
     end
 
     def put(path, data)
-      @conn.put(path, data)
+      @conn.put(path, data) { |req| set_content_type(req) }
+    end
+
+    def set_content_type(req)
+      req.headers['Content-Type'] = 'application/json'
     end
 
     def delete(path)
