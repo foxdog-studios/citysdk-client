@@ -6,10 +6,10 @@ Gem::Specification.new do |gem|
   gem.name          = 'citysdk-client'
 
   # If changed, also update lib/citysdk.rb
-  gem.version       = "0.1.2.1"
+  gem.version       = '0.2'
 
-  gem.authors       = ["Tom Demeyer"]
-  gem.email         = ["tom@waag.org"]
+  gem.authors       = ['Peter Sutton']
+  gem.email         = ['foxxy@foxdogstudios.com']
   gem.description   = %q{Ruby client for the CitySDK API}
   gem.summary       = %q{Ruby client for the CitySDK API}
   gem.homepage      = "http://dev.citysdk.futureeverything.com/"

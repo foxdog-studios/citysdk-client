@@ -2,6 +2,8 @@
 
 A Ruby client for the CitySDK API.
 
+[![Code Climate](https://codeclimate.com/github/foxdog-studios/citysdk-client.png)](https://codeclimate.com/github/foxdog-studios/citysdk-client)
+
 
 ## Example usage
 
