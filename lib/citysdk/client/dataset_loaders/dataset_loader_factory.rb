@@ -11,11 +11,11 @@ module CitySDK
     end # def
 
     def get_loader_class(format)
-      @formats.fetch(format)
+      @formats.fetch(format.to_sym)
     end # def
 
     def supports?(format)
-      @formats.key?(format)
+      @formats.key?(format.to_sym)
     end # def
   end # class
 end # moudle
