@@ -2,14 +2,11 @@
 
 require 'pathname'
 require 'tmpdir'
-require_relative 'abstract_dataset_loader'
-require_relative 'file_dataset_loader'
+require_relative 'path_dataset_loader'
 
 module CitySDK
-  class ZipDatasetLoader < AbstractDatasetLoader
-    private
-
-    def load_dataset
+  class ZipDatasetLoader < PathDatasetLoader
+    def load
       Dir.mktmpdir do |extract_dir|
         extract_dir = Pathname.new(extract_dir)
         unzip(extract_dir)
@@ -17,13 +14,15 @@ module CitySDK
       end # do
     end # def
 
+    private
+
     def unzip(extract_dir)
       # TODO: Replace this with a Ruby Zip library so that we get clear
       #       errors when something goes wrong and remove the
       #       possibility of shell injections.
       command = "unzip '#{path}' -d '#{extract_dir}' > /dev/null 2>&1"
       unless system(command)
-        fail "Failed to unzip #{path}."
+        fail "Failed to unzip #{path.inspect}."
       end # unless
     end # def
 

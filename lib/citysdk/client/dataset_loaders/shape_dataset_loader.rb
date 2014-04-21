@@ -1,19 +1,17 @@
 # -*- encoding: utf-8 -*-
 
 require 'geo_ruby/shp'
-require_relative 'abstract_dataset_loader'
+require_relative 'path_dataset_loader'
 
 module CitySDK
-  class ShapeDatasetLoader < AbstractDatasetLoader
+  class ShapeDatasetLoader < PathDatasetLoader
+    def load
+      GeoRuby::Shp4r::ShpFile.open(path) do |shapes|
+        return shapes_to_dataset(shapes)
+      end # do
+    end # def
+
     private
-
-    def load_dataset
-      open { |shapes| return shapes_to_dataset(shapes) }
-    end # def
-
-    def open(&block)
-      GeoRuby::Shp4r::ShpFile.open(path.to_s, &block)
-    end # def
 
     def shapes_to_dataset(shapes)
       shapes.map { |shape| shape_to_data(shapes.fields, shape) }

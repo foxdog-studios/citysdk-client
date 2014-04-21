@@ -1,27 +1,25 @@
 # -*- encoding: utf-8 -*-
 
 require 'json'
-require_relative 'abstract_dataset_loader'
+require_relative 'stream_dataset_loader'
 
 module CitySDK
-  class JSONDatasetLoader < AbstractDatasetLoader
-    private
-
-    TYPE_FEATURE_COLLECTION = 'FeatureCollection'.freeze
-
-    def load_dataset
-      @json = load_json
+  class JSONDatasetLoader < StreamDatasetLoader
+    def load
+      load_json
       delete_feature_types if feature_collection?
       check_structure
-      @json
+      @dataset
     end # def
 
+    private
+
     def load_json
-      JSON.load(path, nil, symoblize_names: true)
+      @dataset = JSON.load(stream, nil, symoblize_names: true)
     end # def
 
     def array?
-      @json.is_a?(Array)
+      @dataset.is_a?(Array)
     end # def
 
     def check_structure
@@ -31,11 +29,11 @@ module CitySDK
     end # def
 
     def delete_feature_types!
-      @json.fetch(:features).each { |feature| feature.delete(:type) }
+      @dataset.fetch(:features).each { |feature| feature.delete(:type) }
     end # def
 
     def feature_collection?
-      !array? && @json[:type] == TYPE_FEATURE_COLLECTION
+      !array? && @datset[:type] == 'FeatureCollection'
     end # def
   end # class
 end # module
