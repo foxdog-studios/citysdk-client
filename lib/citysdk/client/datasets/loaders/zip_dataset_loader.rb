@@ -6,7 +6,7 @@ require_relative 'path_dataset_loader'
 
 module CitySDK
   class ZipDatasetLoader < PathDatasetLoader
-    def load
+    def load_dataset
       Dir.mktmpdir do |extract_dir|
         extract_dir = Pathname.new(extract_dir)
         unzip(extract_dir)

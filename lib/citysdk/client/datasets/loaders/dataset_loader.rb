@@ -2,8 +2,8 @@
 
 module CitySDK
   class DatasetLoader
-    def load
-      fail 'Subclass must implement load but does not.'
+    def load_dataset
+      fail 'Subclass must implement load_dataset but does not.'
     end # def
   end # class
 end # module

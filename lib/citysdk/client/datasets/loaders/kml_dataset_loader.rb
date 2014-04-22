@@ -7,7 +7,7 @@ require_relative 'stream_dataset_loader'
 
 module CitySDK
   class KMLDatasetLoader < StreamDatasetLoader
-    def load
+    def load_dataset
       kml_to_dataset(stream)
     end # def
 

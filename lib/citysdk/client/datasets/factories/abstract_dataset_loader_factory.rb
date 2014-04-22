@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
 module CitySDK
-  class DatasetLoaderFactory
+  class AbstractDatasetLoaderFactory
     def initialize(formats)
       @formats = formats
     end # def
 
-    def create(format, *args)
-      get_loader_class(format).new(*args)
+    def create(source, format)
+      get_loader_class(format).new(source)
     end # def
 
     def get_loader_class(format)

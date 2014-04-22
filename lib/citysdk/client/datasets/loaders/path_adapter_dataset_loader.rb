@@ -1,23 +1,22 @@
 # -*- encoding: utf-8 -*-
 
-require_relative 'dataset_loader'
+require_relative '../loaders/dataset_loader'
 
 module CitySDK
   class PathAdapterDatasetLoader < DatasetLoader
-    def initialize(loader_factory, format, path)
-      @loader_factory = loader_factory
-      @format = format
+    def initialize(stream_loader_class, path)
+      @stream_loader_class = stream_loader_class
       @path = path
     end # def
 
-    def load
+    def load_dataset
       open(@path) { |stream| return load_stream(stream) }
     end # def
 
     private
 
     def load_stream(stream)
-      @loader_factory.create(@format, stream).load
+      @stream_loader_class.new(stream).load_dataset
     end # def
   end # class
 end # module

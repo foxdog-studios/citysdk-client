@@ -1,40 +1,43 @@
 # -*- encoding: utf-8 -*-
 
+require_relative '../loaders/path_adapter_dataset_loader'
 require_relative 'path_dataset_loader_factory'
 require_relative 'stream_dataset_loader_factory'
 
 module CitySDK
-  class DatasetFactory
+  class PathAdapterDatasetLoaderFactory
     def initialize
       @path_factory = PathDatasetLoaderFactroy.new
       @stream_factory = StreamDatasetLoaderFactory.new
-
-      @factories = [
-        @path_factory,
-        @stream_factory
-      ]
     end # def
 
-    def load_path(format, path)
-      create_path(format, path).load
-    end # def
-
-    def load_stream(format, stream)
-      create_stream(format, stream).load
+    def create(path, format = nil)
+      create_format(path, ensure_format(path, format))
     end # def
 
     private
 
-    def create_path(format, path)
+    def create_adapter(path, format)
+      PathAdapterDatasetLoader.new(
+        @stream_factory.get_loader_class(format),
+        path
+      )
+    end # def
+
+    def create_path(path, format)
+      @path_factory.create(path, format)
+    end # def
+
+    def create_format(path, format)
       if path_adapter?(format)
-        PathAdapterDatasetLoader.new(@stream_factory, format, path)
+        create_adapter(path, format)
       else
-        @path_factory.create(format, path)
+        create_path(path, format)
       end # else
     end # def
 
-    def create_stream(format, stream)
-      @stream_factory.create(format, stream)
+    def ensure_format(path, format)
+      format || @path_factory.format_from_path(path)
     end # def
 
     def path_adapter?(format)

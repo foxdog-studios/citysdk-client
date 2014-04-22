@@ -4,14 +4,6 @@ require 'test/unit'
 require 'citysdk/client'
 
 class TestDatasetFactroy < Test::Unit::TestCase
-  def setup
-    @factory = CitySDK::DatasetFactory.new
-  end # def
-
-  def teardown
-    @factory = nil
-  end # def
-
   def test_csv
     load_dataset(:csv)
   end # def
@@ -25,7 +17,7 @@ class TestDatasetFactroy < Test::Unit::TestCase
   end # def
 
   def test_shp
-    load_path(:shp, expand_path('../shp/dataset.shp'))
+    load_path(expand_path('../shp/dataset.shp'))
   end # def
 
   # TODO: Find Zip test dataset
@@ -40,11 +32,11 @@ class TestDatasetFactroy < Test::Unit::TestCase
   end # def
 
   def load_dataset(format)
-    load_path(format, expand_path("../dataset.#{format}"))
+    load_path(expand_path("../dataset.#{format}"))
   end # def
 
-  def load_path(format, path)
-    @factory.load_path(format, path)
+  def load_path(path)
+    CitySDK::Dataset.load_path(path)
   end # def
 end # class
 

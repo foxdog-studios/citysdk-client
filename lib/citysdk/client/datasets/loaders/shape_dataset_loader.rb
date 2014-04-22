@@ -5,7 +5,7 @@ require_relative 'path_dataset_loader'
 
 module CitySDK
   class ShapeDatasetLoader < PathDatasetLoader
-    def load
+    def load_dataset
       GeoRuby::Shp4r::ShpFile.open(path) do |shapes|
         return shapes_to_dataset(shapes)
       end # do

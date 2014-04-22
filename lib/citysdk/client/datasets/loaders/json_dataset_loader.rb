@@ -5,7 +5,7 @@ require_relative 'stream_dataset_loader'
 
 module CitySDK
   class JSONDatasetLoader < StreamDatasetLoader
-    def load
+    def load_dataset
       load_json
       delete_feature_types if feature_collection?
       check_structure
