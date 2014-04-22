@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+require_relative 'factories/path_dataset_loader_factory'
 require_relative 'factories/path_adapter_dataset_loader_factory'
 require_relative 'factories/stream_dataset_loader_factory'
 
@@ -11,6 +12,10 @@ module CitySDK
 
     def self.load_stream(stream, format)
       self.load_dataset(StreamDatasetLoaderFactory, stream, format)
+    end # def
+
+    def self.format_from_path(path)
+      PathDatasetLoaderFactory.new.format_from_path(path)
     end # def
 
     private

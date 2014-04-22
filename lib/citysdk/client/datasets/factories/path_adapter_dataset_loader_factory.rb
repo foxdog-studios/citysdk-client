@@ -7,7 +7,7 @@ require_relative 'stream_dataset_loader_factory'
 module CitySDK
   class PathAdapterDatasetLoaderFactory
     def initialize
-      @path_factory = PathDatasetLoaderFactroy.new
+      @path_factory = PathDatasetLoaderFactory.new
       @stream_factory = StreamDatasetLoaderFactory.new
     end # def
 

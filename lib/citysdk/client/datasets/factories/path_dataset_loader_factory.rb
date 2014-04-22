@@ -5,7 +5,7 @@ require_relative '../loaders/zip_dataset_loader'
 require_relative 'abstract_dataset_loader_factory'
 
 module CitySDK
-  class PathDatasetLoaderFactroy < AbstractDatasetLoaderFactory
+  class PathDatasetLoaderFactory < AbstractDatasetLoaderFactory
     def initialize
       super(
         shp: ShapeDatasetLoader,
